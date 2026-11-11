@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>MinerU 4：文档提取</title>
+<style>
+  :root { --base:#f3f3f4; --glow:rgba(249,115,22,.20); --haze:rgba(0,0,0,.06); --glass:rgba(255,255,255,.76); --edge:rgba(255,255,255,.95);
+    --hairline:rgba(0,0,0,.09); --shadow:0 22px 44px -26px rgba(0,0,0,.30),0 1px 2px rgba(0,0,0,.05); --fg:#101012; --muted:#5d5d66;
+    --accent:#f26a12; --accent-deep:#d9530a; --accent-soft:rgba(242,106,18,.12); --btn:linear-gradient(180deg,#fb8a3c,#ee6410); --btn-fg:#fff; --code:rgba(0,0,0,.05); }
+  @media (prefers-color-scheme: dark) { :root { --base:#08080a; --glow:rgba(249,115,22,.21); --haze:rgba(255,255,255,.05); --glass:rgba(28,28,32,.62); --edge:rgba(255,255,255,.11);
+    --hairline:rgba(255,255,255,.10); --shadow:0 26px 60px -28px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05); --fg:#f4f4f5; --muted:#a3a3ad;
+    --accent:#ff8a3d; --accent-deep:#f97316; --accent-soft:rgba(255,138,61,.16); --btn:linear-gradient(180deg,#ff8f45,#ef6a14); --btn-fg:#170b02; --code:rgba(255,255,255,.07); } }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; color:var(--fg);
+    font:15px/1.7 "Segoe UI Variable Text","Segoe UI","HarmonyOS Sans SC","MiSans","Microsoft YaHei UI","PingFang SC",sans-serif;
+    background-color:var(--base);
+    background-image:radial-gradient(1100px 620px at 88% -12%,var(--glow),transparent 62%),radial-gradient(760px 520px at -8% 38%,var(--haze),transparent 64%);
+    background-repeat:no-repeat; background-attachment:fixed; }
+  main { width:min(580px,92vw); background:var(--glass); border:1px solid var(--edge); border-radius:22px; padding:34px 36px; box-shadow:var(--shadow);
+    -webkit-backdrop-filter:blur(24px) saturate(150%); backdrop-filter:blur(24px) saturate(150%); }
+  h1 { font-size:26px; font-weight:600; letter-spacing:-.012em; margin:0 0 4px; }
+  p { margin:8px 0; color:var(--muted); }
+  .status { display:flex; align-items:center; gap:10px; margin:20px 0 8px; font-weight:600; }
+  .dot { flex:none; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); animation:beat 1.1s ease-in-out infinite; }
+  .ready .dot { animation:none; }
+  @keyframes beat { 50% { opacity:.3; } }
+  @media (prefers-reduced-motion: reduce) { .dot { animation:none; } }
+  ol { margin:10px 0 0; padding-left:22px; color:var(--muted); }
+  code { background:var(--code); border:1px solid var(--hairline); border-radius:6px; padding:1px 7px; font-family:Consolas,"Cascadia Mono",monospace; font-size:13.5px; color:var(--fg); }
+  a.go { display:inline-block; margin-top:20px; padding:9px 20px; border-radius:11px; background:var(--btn); color:var(--btn-fg); text-decoration:none; font-weight:600; }
+  a.go:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  hr { border:0; border-top:1px solid var(--hairline); margin:24px 0 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>MinerU 4：文档提取</h1>
+  <p>本地文档解析，文件不会离开这台电脑。</p>
+  <div class="status" id="status"><span class="dot"></span><span id="msg">正在连接本机服务…</span></div>
+  <div id="help" hidden>
+    <p>还没有连上。服务可能没启动，或者还没选运行模式。</p>
+    <ol>
+      <li>双击本文件夹里的 <code>MinerU.bat</code>，在弹出的启动页选择运行模式。</li>
+      <li>黑色窗口保持开启，本页会自动跳转，不用刷新。</li>
+    </ol>
+  </div>
+  <a class="go" href="http://127.0.0.1:7859/">打开启动页</a>
+  <hr>
+  <p>想让同一网络下的其他电脑或手机使用：改为双击 <code>MinerU-LAN.bat</code>，窗口里会显示形如 <code>http://192.168.x.x:7860</code> 的地址，在对方浏览器输入即可。</p>
+</main>
+<script>
+  var app = "http://127.0.0.1:7860/", start = "http://127.0.0.1:7859/", tries = 0;
+  function reach(url) { return fetch(url, { mode: "no-cors", cache: "no-store" }); }
+  function probe() {
+    reach(app).then(function () { go(app); }).catch(function () {
+      reach(start).then(function () { go(start); }).catch(function () {
+        tries += 1;
+        if (tries >= 3) document.getElementById("help").hidden = false;
+        document.getElementById("msg").textContent = "等待本机服务启动…（已等 " + Math.round(tries * 1.5) + " 秒）";
+        setTimeout(probe, 1500);
+      });
+    });
+  }
+  function go(url) {
+    document.getElementById("status").className = "status ready";
+    document.getElementById("msg").textContent = "已连接，正在跳转…";
+    location.replace(url);
+  }
+  probe();
+</script>
+</body>
+</html>

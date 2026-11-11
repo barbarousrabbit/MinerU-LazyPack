@@ -1,0 +1,10 @@
+# Windows launchers hold Chinese text in GBK and must keep CRLF line endings: store them untouched.
+*.bat -text
+*.cmd -text
+README.txt -text
+*.ps1 text eol=crlf
+*.py text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.pdf binary
+*.png binary

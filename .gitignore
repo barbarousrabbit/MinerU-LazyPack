@@ -1,0 +1,11 @@
+# runtime and data created by build\setup.cmd and by use
+.venv/
+python/
+home/
+output/
+dist/
+bench/
+__pycache__/
+*.pyc
+build/setup.log
+build/setup-logs/
