@@ -513,7 +513,7 @@ button.small:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <button data-theme="system">跟随系统</button><button data-theme="light">浅色</button><button data-theme="dark">深色</button>
     </div>
     <h1>MinerU 4：文档提取</h1>
-    <p>选择运行模式后进入页面。全部在本机运行，文件不上传。</p>
+    <p>MinerU 懒人包：解压即用的本地文档解析。选择运行模式后进入页面，全部在本机运行，文件不上传。</p>
   </header>
   <section class="slab card">
     <div class="status"><span class="dot" id="dot"></span><span id="status">正在扫描硬件…</span></div>
@@ -541,7 +541,7 @@ button.small:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     <div id="benchrun" hidden style="margin-top:12px"><button class="small ghost" id="benchstop">停止测速</button></div>
     <div id="benchout"></div>
   </section>
-  <p class="foot">懒人包：<a href="https://github.com/barbarousrabbit/MinerU-LazyPack" target="_blank" rel="noopener">barbarousrabbit/MinerU-LazyPack</a>　解析引擎：<a href="https://github.com/opendatalab/MinerU" target="_blank" rel="noopener">MinerU（OpenDataLab）</a></p>
+  <p class="foot">MinerU 懒人包　<a href="https://github.com/barbarousrabbit/MinerU-LazyPack" target="_blank" rel="noopener">barbarousrabbit/MinerU-LazyPack</a>　基于开源 MinerU 解析引擎</p>
 </main>
 <script>
 const $ = id => document.getElementById(id);

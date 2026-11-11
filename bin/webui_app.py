@@ -305,12 +305,19 @@ footer { opacity: .75; }
 
 PACK_REPO = "https://github.com/barbarousrabbit/MinerU-LazyPack"
 PACK_BADGE = "https://img.shields.io/github/stars/barbarousrabbit/MinerU-LazyPack.svg"
+PACK_HOME = "https://github.com/barbarousrabbit"
 ENGINE_REPO = "https://github.com/opendatalab/MinerU"
 ENGINE_BADGE = "https://img.shields.io/github/stars/opendatalab/MinerU.svg"
+ENGINE_HOME = "https://mineru.net/?source=online"
+SUBTITLE_TEXT = (
+    "MinerU Lazy Pack: local document parsing that works right after unzipping. Double-click to start, "
+    "the graphics card is detected automatically, with single-file and batch parsing and LAN access.",
+    "MinerU 懒人包：解压即用的本地文档解析。双击启动，自动识别显卡，支持单文件、批量处理和局域网访问，文件不上传。",
+)
 SUPPORT_TEXT = (
-    "Portable pack by barbarousrabbit. The parsing engine is the open-source MinerU project by OpenDataLab. "
-    "If the pack helps, a star is welcome.",
-    "懒人包由 barbarousrabbit 整理，解析引擎来自开源项目 MinerU（OpenDataLab）。觉得好用，欢迎点亮 ⭐️",
+    "Packed and maintained by barbarousrabbit, built on the open-source MinerU engine. "
+    "If it helps, a star is welcome.",
+    "由 barbarousrabbit 整理维护，基于开源 MinerU 解析引擎。觉得好用，欢迎点亮 ⭐️",
 )
 MEMORY_MARKERS = ("parse_oom", "out of memory", "outofmemory", "outofdevicememory", "out_of_device_memory",
                   "vram", "显存", "failed to allocate", "bad_alloc", "bad allocation", "device memory",
@@ -723,9 +730,11 @@ def _retheme_header(markup: str) -> str:
 
 
 def _relink_header(markup: str) -> str:
-    """Points the header's code button and star badge at the pack's own repository.
-    The engine's official repository stays linked from the mode bar."""
-    return markup.replace(ENGINE_BADGE, PACK_BADGE).replace(ENGINE_REPO, PACK_REPO)
+    """Points the header's code button, star badge and homepage button at the pack's
+    own pages. The model and paper menus keep pointing at the model that actually runs."""
+    for engine, pack in ((ENGINE_BADGE, PACK_BADGE), (ENGINE_REPO, PACK_REPO), (ENGINE_HOME, PACK_HOME)):
+        markup = markup.replace(engine, pack)
+    return markup
 
 
 def _mode_bar(args) -> str:
@@ -743,7 +752,6 @@ def _mode_bar(args) -> str:
         '<a data-theme="light" href="?__theme=light">浅色</a>'
         '<a data-theme="dark" href="?__theme=dark">深色</a></span>'
     ]
-    tools.append(f'<a class="mu-switch" href="{ENGINE_REPO}" target="_blank" rel="noopener">MinerU 官方仓库</a>')
     if args.launcher_url:
         tools.append(f'<a class="mu-switch" href="{args.launcher_url}?switch=1">切换模式</a>')
     return (f'<div class="mu-mode-bar"><div class="mu-chips">{"".join(chips)}</div>'
@@ -830,8 +838,12 @@ def launch(args) -> None:
 
         if args.default_tier and args.default_tier in client.capabilities.tiers and hasattr(official, "_default_tier"):
             official._default_tier = lambda _capabilities: args.default_tier
-        if "header_support_text" in getattr(official_text, "MESSAGES", {}):
-            official_text.MESSAGES["header_support_text"] = SUPPORT_TEXT
+        for key, text in (("header_subtitle", SUBTITLE_TEXT), ("header_support_text", SUPPORT_TEXT)):
+            if key in getattr(official_text, "MESSAGES", {}):
+                official_text.MESSAGES[key] = text
+        if hasattr(official, "_render_header"):
+            stock_header = official._render_header
+            official._render_header = lambda: _relink_header(stock_header())
 
         def fallback(reason: str) -> None:
             print(f"[MinerU Portable] 批量页签加载失败，改用官方页面：{reason}", flush=True)
@@ -852,7 +864,7 @@ def launch(args) -> None:
             kwargs["css"] = (kwargs.get("css") or "") + BATCH_CSS
             with gr.Blocks(title="MinerU 4：文档提取") as demo:
                 gr.HTML(
-                    _relink_header(_retheme_header(official._render_header())),
+                    _retheme_header(official._render_header()),
                     elem_classes=["mineru-header-html"],
                     js_on_load=f"({official._resource_text('gradio_header.js')})({{element}})",
                     apply_default_css=False,
